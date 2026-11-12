@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+command -v tmux >/dev/null || { echo 'Install tmux: sudo apt install tmux' >&2; exit 1; }
+command -v codex >/dev/null || { echo 'codex is missing from PATH' >&2; exit 1; }
+# exec replaces the session shell, so Codex exiting cannot leave a shell receiving mobile input.
+name="pocket-$(date +%s)-$$"
+printf -v launch '%q ' codex "$@"
+pane=$(tmux new-session -d -s "$name" -c "$PWD" -P -F '#{pane_id}' "exec $launch")
+tmux set-option -p -t "$pane" @codex_pocket 1
+if [[ -n "${TMUX:-}" ]]; then
+    tmux switch-client -t "$name"
+else
+    exec tmux attach-session -t "$name"
+fi

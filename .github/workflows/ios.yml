@@ -1,0 +1,17 @@
+name: iOS build and demo tests
+on:
+  workflow_dispatch:
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and test on an available iPhone simulator
+        run: bash scripts/check-mac.sh
+      - name: Save screenshots and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-results
+          path: /tmp/CodexPocket-*.xcresult
